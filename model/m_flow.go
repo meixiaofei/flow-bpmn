@@ -376,20 +376,26 @@ func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pa
 		  LEFT JOIN %s f ON n.form_id = f.record_id AND f.deleted = n.deleted
 			LEFT JOIN %s fw ON n.flow_id = fw.record_id AND fw.deleted=n.deleted
 		WHERE ni.deleted = 0 AND ni.status = 1 AND fi.status = 1 AND ni.record_id IN (SELECT node_instance_id FROM %s WHERE deleted = 0 AND candidate_id = ?)
-		`, schema.NodeInstanceTableName, schema.FlowInstanceTableName, schema.NodeTableName, schema.FormTableName, schema.FlowTableName, schema.NodeCandidateTableName)
+		`,
+		`ni.record_id,ni.flow_instance_id,ni.input_data,ni.node_id,f.data 'form_data',f.type_code 'form_type',fi.launcher,fi.launch_time,n.code 'node_code',n.name 'node_name',fw.name 'flow_name'`,
+		schema.NodeInstanceTableName,
+		schema.FlowInstanceTableName,
+		schema.NodeTableName,
+		schema.FormTableName,
+		schema.FlowTableName,
+		schema.NodeCandidateTableName)
 
 	args = append(args, userID)
-	if typeCode != "" {
-		query = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND type_code=?)", query, schema.FlowTableName)
-		args = append(args, typeCode)
-	} else if flowCode != "" {
+	if flowCode != "" {
 		query = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND code=?)", query, schema.FlowTableName)
 		args = append(args, flowCode)
+	} else {
+		query = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND type_code=?)", query, schema.FlowTableName)
+		args = append(args, typeCode)
 	}
 	query = fmt.Sprintf("%s ORDER BY ni.id DESC LIMIT %d, %d", query, (page-1)*pageSize, pageSize)
 
 	var items []*schema.FlowTodoResult
-	query = fmt.Sprintf(query, `ni.record_id,ni.flow_instance_id,ni.input_data,ni.node_id,f.data 'form_data',f.type_code 'form_type',fi.launcher,fi.launch_time,n.code 'node_code',n.name 'node_name',fw.name 'flow_name'`)
 	_, err := a.DB.Select(&items, query, args...)
 	if err != nil {
 		return 0, nil, errors.Wrapf(err, "查询用户的待办数据发生错误")
