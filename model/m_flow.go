@@ -404,7 +404,7 @@ func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pa
 	query = fmt.Sprintf("%s ORDER BY ni.id DESC LIMIT %d, %d", query, (page-1)*pageSize, pageSize)
 
 	var items []*schema.FlowTodoResult
-	_, err := a.DB.Select(&items, query, args...)
+	_, err = a.DB.Select(&items, query, args...)
 	if err != nil {
 		return 0, nil, errors.Wrapf(err, "查询用户的待办数据发生错误")
 	}
