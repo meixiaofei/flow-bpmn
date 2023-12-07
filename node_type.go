@@ -17,7 +17,8 @@ const (
 	// TerminateEvent 终止事件
 	TerminateEvent NodeType = "terminateEvent"
 	// UserTask 人工任务
-	UserTask NodeType = "userTask"
+	UserTask   NodeType = "userTask"
+	ScriptTask NodeType = "scriptTask"
 	// ExclusiveGateway 排他网关
 	ExclusiveGateway NodeType = "exclusiveGateway"
 	// ParallelGateway 并行网关
@@ -37,6 +38,8 @@ func GetNodeTypeByName(s string) (NodeType, error) {
 		return TerminateEvent, nil
 	case "userTask":
 		return UserTask, nil
+	case "scriptTask":
+		return ScriptTask, nil
 	case "exclusiveGateway":
 		return ExclusiveGateway, nil
 	case "parallelGateway":

@@ -16,7 +16,7 @@ var (
 
 // Init 初始化流程配置
 func Init(opts ...db.Option) {
-	db, trace, err := db.NewMySQL(opts...)
+	db, tx, trace, err := db.NewMySQL(opts...)
 	if err != nil {
 		panic(err)
 	}
@@ -26,7 +26,7 @@ func Init(opts ...db.Option) {
 		panic(err)
 	}
 	engine = e
-	sql.Reg(db)
+	sql.Reg(tx)
 }
 
 // SetParser 设定解析器

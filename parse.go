@@ -24,6 +24,7 @@ type NodeResult struct {
 	NodeID               string            // 节点ID
 	NodeName             string            // 节点名称
 	NodeType             NodeType          // 节点类型
+	Content              string            // 节点执行脚本内容
 	Routers              []*RouterResult   // 节点路由
 	Properties           []*PropertyResult // 节点属性
 	CandidateExpressions []string          // 候选人表达式

@@ -74,6 +74,10 @@ func (e *Engine) Init(parser Parser, execer Execer, sqlDB *sql.DB, trace bool) (
 	return e, nil
 }
 
+func (e *Engine) GetExecer() Execer {
+	return e.execer
+}
+
 // SetParser 设定解析器
 func (e *Engine) SetParser(parser Parser) {
 	e.parser = parser
@@ -342,6 +346,7 @@ func (e *Engine) parseOperating(flow *schema.Flow, nodeResults []*NodeResult) (*
 			FlowID:   flow.RecordID,
 			Code:     n.NodeID,
 			Name:     n.NodeName,
+			Content:  n.Content,
 			TypeCode: n.NodeType.String(),
 			OrderNum: strconv.FormatInt(int64(i+10), 10),
 			Created:  flow.Created,

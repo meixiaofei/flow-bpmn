@@ -12,7 +12,7 @@ require (
 	github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 // indirect
 	github.com/fatih/structs v1.1.0
 	github.com/go-gorp/gorp v2.2.0+incompatible // indirect
-	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/mattn/go-sqlite3 v2.0.2+incompatible // indirect
 	github.com/peterh/liner v1.1.0
@@ -24,4 +24,6 @@ require (
 	github.com/visualfc/pkgwalk v1.0.0
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	gopkg.in/gorp.v2 v2.2.0
+	gorm.io/driver/mysql v1.5.2
+	gorm.io/gorm v1.25.5
 )

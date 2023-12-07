@@ -43,6 +43,7 @@ type Node struct {
 	FlowID   string `db:"flow_id,size:36" structs:"flow_id" json:"flow_id"`       // 流程内码
 	Code     string `db:"code,size:50" structs:"code" json:"code"`                // 节点编号
 	Name     string `db:"name,size:50" structs:"name" json:"name"`                // 节点名称
+	Content  string `db:"content,size:500" structs:"content" json:"content"`      // 节点执行脚本内容
 	TypeCode string `db:"type_code,size:50" structs:"type_code" json:"type_code"` // 节点类型编号
 	OrderNum string `db:"order_num,size:10" structs:"order_num" json:"order_num"` // 排序值
 	FormID   string `db:"form_id,size:36" structs:"form_id" json:"form_id"`       // 表单内码

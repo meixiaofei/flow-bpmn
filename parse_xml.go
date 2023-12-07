@@ -19,7 +19,7 @@ type xmlParser struct {
 
 func (p *xmlParser) Parse(ctx context.Context, content []byte) (*ParseResult, error) {
 	result := &ParseResult{
-		FlowStatus: 1,
+		FlowStatus: 2,
 	}
 	var err error
 
@@ -65,6 +65,7 @@ func (p *xmlParser) Parse(ctx context.Context, content []byte) (*ParseResult, er
 		var nodeResult NodeResult
 		nodeResult.NodeID = node.Code
 		nodeResult.NodeName = node.Name
+		nodeResult.Content = node.Content
 		nodeResult.NodeType, err = GetNodeTypeByName(node.Type)
 		if err != nil {
 			return nil, err
@@ -105,6 +106,12 @@ func (p *xmlParser) ParseNode(element *etree.Element) (*nodeInfo, error) {
 			if e.Tag == "terminateEventDefinition" {
 				node.Type = "terminateEvent"
 			}
+		}
+	}
+	switch node.Type {
+	case "scriptTask":
+		if script := element.SelectElement("script"); script != nil {
+			node.Content = script.Text()
 		}
 	}
 	if name := element.SelectAttr("name"); name != nil {
@@ -278,6 +285,7 @@ type nodeInfo struct {
 	Type           string
 	Code           string
 	Name           string
+	Content        string
 	CandidateUsers []string
 	Properties     []*PropertyResult
 	FormResult     *NodeFormResult

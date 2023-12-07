@@ -210,6 +210,16 @@ func (n *NodeRouter) Next(processor string) error {
 		return nil
 	}
 
+	switch nodeType {
+	case "scriptTask":
+		success, err := n.engine.execer.ExecReturnBool(n.ctx, []byte(n.node.Content), n.getExpData())
+		if err != nil {
+			return err
+		} else if !success {
+			return errors.New("脚本任务执行失败")
+		}
+	}
+
 	// 增加下一节点
 	nodeInstanceIDs, err := n.addNextNodeInstances()
 	if err != nil {

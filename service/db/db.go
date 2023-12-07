@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"log"
 	"os"
 	"reflect"
@@ -89,7 +91,7 @@ type DB struct {
 }
 
 // NewMySQL 创建MySQL数据库实例
-func NewMySQL(opts ...Option) (*sql.DB, bool, error) {
+func NewMySQL(opts ...Option) (*sql.DB, *gorm.DB, bool, error) {
 	o := &options{
 		maxLifetime:  time.Hour * 2,
 		maxOpenConns: 150,
@@ -102,7 +104,7 @@ func NewMySQL(opts ...Option) (*sql.DB, bool, error) {
 
 	db, err := sql.Open("mysql", o.dsn)
 	if err != nil {
-		return nil, o.trace, err
+		return nil, nil, o.trace, err
 	}
 
 	// 尝试发送Ping包
@@ -116,14 +118,23 @@ func NewMySQL(opts ...Option) (*sql.DB, bool, error) {
 		return time.Second
 	})
 	if err != nil {
-		return nil, o.trace, err
+		return nil, nil, o.trace, err
 	}
 
 	db.SetMaxOpenConns(o.maxOpenConns)
 	db.SetMaxIdleConns(o.maxIdleConns)
 	db.SetConnMaxLifetime(o.maxLifetime)
 
-	return db, o.trace, nil
+	tx, err := gorm.Open(mysql.Open(o.dsn), &gorm.Config{})
+	txDB, _ := tx.DB()
+	txDB.SetMaxOpenConns(o.maxOpenConns)
+	txDB.SetMaxIdleConns(o.maxIdleConns)
+	txDB.SetConnMaxLifetime(o.maxLifetime)
+	if err != nil {
+		return nil, nil, o.trace, err
+	}
+
+	return db, tx, o.trace, nil
 }
 
 // NewMySQLWithDB 创建DB
