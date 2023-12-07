@@ -22,7 +22,7 @@ var (
 
 func init() {
 	flag.StringVar(&staticRoot, "static", "web", "静态目录")
-	flag.StringVar(&dsn, "dsn", "root:123456@tcp(127.0.0.1:3306)/flow?charset=utf8", "MySQL链接路径")
+	flag.StringVar(&dsn, "dsn", "root:123456@tcp(127.0.0.1:3306)/flow?charset=utf8mb4", "MySQL链接路径")
 	flag.StringVar(&addr, "addr", ":6062", "监听地址")
 }
 
