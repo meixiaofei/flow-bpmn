@@ -368,8 +368,10 @@ func (a *Flow) QueryTodo(typeCode, flowCode, userID string, count int) ([]*schem
 
 // QueryTodoPage 分页查询用户的待办数据
 func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pageSize int) (int, []*schema.FlowTodoResult, error) {
-	var args []interface{}
-	query := fmt.Sprintf(`
+	var (
+		args        []interface{}
+		countSelect = "count(*) as total"
+		countQuery  = fmt.Sprintf(`
 		SELECT %s FROM %s ni
 		  JOIN %s fi ON ni.flow_instance_id = fi.record_id AND fi.deleted = ni.deleted
 		  LEFT JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
@@ -377,14 +379,16 @@ func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pa
 			LEFT JOIN %s fw ON n.flow_id = fw.record_id AND fw.deleted=n.deleted
 		WHERE ni.deleted = 0 AND ni.status = 1 AND fi.status = 1 AND ni.record_id IN (SELECT node_instance_id FROM %s WHERE deleted = 0 AND candidate_id = ?)
 		`,
-		`ni.record_id,ni.flow_instance_id,ni.input_data,ni.node_id,f.data 'form_data',f.type_code 'form_type',fi.launcher,fi.launch_time,n.code 'node_code',n.name 'node_name',fw.name 'flow_name'`,
-		schema.NodeInstanceTableName,
-		schema.FlowInstanceTableName,
-		schema.NodeTableName,
-		schema.FormTableName,
-		schema.FlowTableName,
-		schema.NodeCandidateTableName)
+			countSelect,
+			schema.NodeInstanceTableName,
+			schema.FlowInstanceTableName,
+			schema.NodeTableName,
+			schema.FormTableName,
+			schema.FlowTableName,
+			schema.NodeCandidateTableName)
+	)
 
+	query := strings.ReplaceAll(countQuery, countSelect, `ni.record_id,ni.flow_instance_id,ni.input_data,ni.node_id,f.data 'form_data',f.type_code 'form_type',fi.launcher,fi.launch_time,n.code 'node_code',n.name 'node_name',fw.name 'flow_name'`)
 	args = append(args, userID)
 	if flowCode != "" {
 		query = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND code=?)", query, schema.FlowTableName)
@@ -393,14 +397,14 @@ func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pa
 		query = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND type_code=?)", query, schema.FlowTableName)
 		args = append(args, typeCode)
 	}
+	total, err := a.DB.SelectInt(countQuery)
+	if err != nil {
+		return 0, nil, errors.Wrapf(err, "查询用户的待办数据发生错误")
+	}
 	query = fmt.Sprintf("%s ORDER BY ni.id DESC LIMIT %d, %d", query, (page-1)*pageSize, pageSize)
 
 	var items []*schema.FlowTodoResult
 	_, err := a.DB.Select(&items, query, args...)
-	if err != nil {
-		return 0, nil, errors.Wrapf(err, "查询用户的待办数据发生错误")
-	}
-	total, err := a.DB.SelectInt(query, `count(*) as total`)
 	if err != nil {
 		return 0, nil, errors.Wrapf(err, "查询用户的待办数据发生错误")
 	}
