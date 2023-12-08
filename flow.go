@@ -114,6 +114,30 @@ func QueryTodoFlowsPaginate(flowCode, userID string, page int, pageSize int) (in
 	return engine.QueryTodoFlowsPaginate(flowCode, userID, page, pageSize)
 }
 
+func CreateFlow(data []byte) (string, error) {
+	return engine.CreateFlow(data)
+}
+
+func DeleteFlow(recordID string) error {
+	return engine.DeleteFlow(recordID)
+}
+
+func GetFlow(recordID string) (*schema.Flow, error) {
+	return engine.GetFlow(recordID)
+}
+
+func QueryAllFlowPage(params schema.FlowQueryParam, pageIndex, pageSize uint) (int64, []*schema.FlowQueryResult, error) {
+	return engine.QueryAllFlowPage(params, pageIndex, pageSize)
+}
+
+func GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error) {
+	return engine.GetTodoByID(nodeInstanceID)
+}
+
+func QueryDone(typeCode, flowCode, userID string, lastTime int64, count int) ([]*schema.FlowDoneResult, error) {
+	return engine.QueryDone(typeCode, flowCode, userID, lastTime, count)
+}
+
 // QueryFlowHistory 查询流程历史数据
 // flowInstanceID 流程实例内码
 func QueryFlowHistory(flowInstanceID string) ([]*schema.FlowHistoryResult, error) {

@@ -640,6 +640,26 @@ func (e *Engine) QueryTodoFlowsPaginate(flowCode, userID string, page int, pageS
 	return e.flowBll.QueryTodoPaginate("", flowCode, userID, page, pageSize)
 }
 
+func (e *Engine) DeleteFlow(recordID string) error {
+	return e.flowBll.DeleteFlow(recordID)
+}
+
+func (e *Engine) GetFlow(recordID string) (*schema.Flow, error) {
+	return e.flowBll.GetFlow(recordID)
+}
+
+func (e *Engine) QueryAllFlowPage(params schema.FlowQueryParam, pageIndex, pageSize uint) (int64, []*schema.FlowQueryResult, error) {
+	return e.flowBll.QueryAllFlowPage(params, pageIndex, pageSize)
+}
+
+func (e *Engine) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error) {
+	return e.flowBll.GetTodoByID(nodeInstanceID)
+}
+
+func (e *Engine) QueryDone(typeCode, flowCode, userID string, lastTime int64, count int) ([]*schema.FlowDoneResult, error) {
+	return e.flowBll.QueryDone(typeCode, flowCode, userID, lastTime, count)
+}
+
 // QueryFlowHistory 查询流程历史数据
 // flowInstanceID 流程实例内码
 func (e *Engine) QueryFlowHistory(flowInstanceID string) ([]*schema.FlowHistoryResult, error) {
