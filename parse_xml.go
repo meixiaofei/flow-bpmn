@@ -19,7 +19,7 @@ type xmlParser struct {
 
 func (p *xmlParser) Parse(ctx context.Context, content []byte) (*ParseResult, error) {
 	result := &ParseResult{
-		FlowStatus: 2,
+		FlowStatus: 1,
 	}
 	var err error
 
