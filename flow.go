@@ -44,6 +44,18 @@ func LoadFile(name string) error {
 	return engine.LoadFile(name)
 }
 
+func QueryGroupFlowPage(params schema.FlowQueryParam, pageIndex, pageSize uint) (int64, []*schema.FlowQueryResult, error) {
+	return engine.flowBll.QueryGroupFlowPage(params, pageIndex, pageSize)
+}
+
+func LaunchFlow(flowID, userID string, inputData []byte) (*HandleResult, error) {
+	_, ni, err := engine.flowBll.LaunchFlowInstance2(flowID, userID, 1, inputData)
+	if err != nil {
+		return nil, err
+	}
+	return engine.nextFlowHandle(context.Background(), ni.RecordID, userID, inputData)
+}
+
 // StartFlow 启动流程
 // flowCode 流程编号
 // nodeCode 开始节点编号
