@@ -66,7 +66,7 @@ type NodeRouter struct {
 // Init 初始化节点路由
 func (n *NodeRouter) Init(ctx context.Context, engine *Engine, nodeInstanceID string, inputData []byte, options ...NodeRouterOption) (*NodeRouter, error) {
 	opts := &nodeRouterOptions{
-		autoStart: true,
+		autoStart: false,
 	}
 	for _, opt := range options {
 		opt(opts)
