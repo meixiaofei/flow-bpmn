@@ -257,6 +257,10 @@ func (e *Engine) parseFormOperating(formOperating *schema.FormOperating, flow *s
 	for _, f := range formOperating.FormGroup {
 		if f.Code == formResult.ID {
 			node.FormID = f.RecordID
+			if f.Data == "null" && formResult.Fields != nil {
+				meta, _ := json.Marshal(formResult.Fields)
+				f.Data = string(meta)
+			}
 			return
 		}
 	}
