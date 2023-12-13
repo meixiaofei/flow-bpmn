@@ -497,7 +497,7 @@ func (a *Flow) QueryDone(typeCode, flowCode, userID string, lastTime int64, coun
 	}
 
 	if lastTime > 0 {
-		where = fmt.Sprintf("%s AND ni.process_time<?", where)
+		where = fmt.Sprintf("%s AND ni.process_time>?", where)
 		args = append(args, lastTime)
 	}
 
