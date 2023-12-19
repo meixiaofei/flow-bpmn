@@ -58,11 +58,10 @@ func LaunchFlow(flowID, userID string, inputData []byte) (*HandleResult, error) 
 
 // StartFlow 启动流程
 // flowCode 流程编号
-// nodeCode 开始节点编号
 // userID 发起人
 // input 输入数据
-func StartFlow(flowCode, nodeCode, userID string, input interface{}) (*HandleResult, error) {
-	return StartFlowWithContext(context.Background(), flowCode, nodeCode, userID, input)
+func StartFlow(flowCode, userID string, input interface{}) (*HandleResult, error) {
+	return StartFlowWithContext(context.Background(), flowCode, userID, input)
 }
 
 // StartFlowWithContext 启动流程
@@ -70,12 +69,12 @@ func StartFlow(flowCode, nodeCode, userID string, input interface{}) (*HandleRes
 // nodeCode 开始节点编号
 // userID 发起人
 // input 输入数据
-func StartFlowWithContext(ctx context.Context, flowCode, nodeCode, userID string, input interface{}) (*HandleResult, error) {
+func StartFlowWithContext(ctx context.Context, flowCode, userID string, input interface{}) (*HandleResult, error) {
 	inputData, err := json.Marshal(input)
 	if err != nil {
 		return nil, err
 	}
-	return engine.StartFlow(ctx, flowCode, nodeCode, userID, inputData)
+	return engine.StartFlow(ctx, flowCode, userID, inputData)
 }
 
 // HandleFlow 处理流程节点
@@ -138,12 +137,20 @@ func GetFlow(recordID string) (*schema.Flow, error) {
 	return engine.GetFlow(recordID)
 }
 
+func GetFlowFormByFlowID(flowID string) (*schema.Form, error) {
+	return engine.GetFlowFormByFlowID(flowID)
+}
+
 func QueryAllFlowPage(params schema.FlowQueryParam, pageIndex, pageSize uint) (int64, []*schema.FlowQueryResult, error) {
 	return engine.QueryAllFlowPage(params, pageIndex, pageSize)
 }
 
 func GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error) {
 	return engine.GetTodoByID(nodeInstanceID)
+}
+
+func QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return engine.QueryDoneByPage(typeCode, flowCode, userID, pageIndex, pageSize)
 }
 
 func QueryDone(typeCode, flowCode, userID string, lastTime int64, count int) ([]*schema.FlowDoneResult, error) {

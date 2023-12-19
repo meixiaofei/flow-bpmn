@@ -426,13 +426,15 @@ func (e *Engine) CreateFlow(data []byte) (string, error) {
 	}
 
 	flow := &schema.Flow{
-		RecordID: util.UUID(),
-		Code:     result.FlowID,
-		Name:     result.FlowName,
-		Version:  result.FlowVersion,
-		XML:      string(data),
-		Status:   result.FlowStatus,
-		Created:  time.Now().Unix(),
+		RecordID:    util.UUID(),
+		Code:        result.FlowID,
+		Name:        result.FlowName,
+		Memo:        result.FlowMemo,
+		IsAutoStart: result.IsAutoStart,
+		Version:     result.FlowVersion,
+		XML:         string(data),
+		Status:      result.FlowStatus,
+		Created:     time.Now().Unix(),
 	}
 
 	nodeOperating, formOperating := e.parseOperating(flow, result.Nodes)
@@ -554,11 +556,10 @@ func (e *Engine) nextFlowHandle(ctx context.Context, nodeInstanceID, userID stri
 
 // StartFlow 启动流程
 // flowCode 流程编号
-// nodeCode 开始节点编号
 // userID 发起人
 // inputData 输入数据
-func (e *Engine) StartFlow(ctx context.Context, flowCode, nodeCode, userID string, inputData []byte) (*HandleResult, error) {
-	nodeInstance, err := e.flowBll.LaunchFlowInstance(flowCode, nodeCode, userID, inputData)
+func (e *Engine) StartFlow(ctx context.Context, flowCode, userID string, inputData []byte) (*HandleResult, error) {
+	nodeInstance, err := e.flowBll.LaunchFlowInstance(flowCode, userID, inputData)
 	if err != nil {
 		return nil, err
 	} else if nodeInstance == nil {
@@ -648,6 +649,10 @@ func (e *Engine) DeleteFlow(recordID string) error {
 	return e.flowBll.DeleteFlow(recordID)
 }
 
+func (e *Engine) GetFlowFormByFlowID(flowID string) (*schema.Form, error) {
+	return e.flowBll.GetFlowFormByFlowID(flowID)
+}
+
 func (e *Engine) GetFlow(recordID string) (*schema.Flow, error) {
 	return e.flowBll.GetFlow(recordID)
 }
@@ -658,6 +663,10 @@ func (e *Engine) QueryAllFlowPage(params schema.FlowQueryParam, pageIndex, pageS
 
 func (e *Engine) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error) {
 	return e.flowBll.GetTodoByID(nodeInstanceID)
+}
+
+func (e *Engine) QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return e.flowBll.QueryDoneByPage(typeCode, flowCode, userID, pageIndex, pageSize)
 }
 
 func (e *Engine) QueryDone(typeCode, flowCode, userID string, lastTime int64, count int) ([]*schema.FlowDoneResult, error) {

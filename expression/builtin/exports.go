@@ -9,10 +9,9 @@ import (
 // Reg 注册内置函数，不注册不能使用
 func init() {
 	qlang.Import("", map[string]interface{}{
-		"SliceStr":  SliceStr,
-		"Slice":     Slice,
-		"Rpc":       Rpc,
-		"FcheckRpc": FcheckRpc,
+		"SliceStr": SliceStr,
+		"Slice":    Slice,
+		"Rpc":      Rpc,
 	})
 }
 

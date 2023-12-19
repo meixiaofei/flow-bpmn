@@ -43,7 +43,7 @@ func TestRepair(t *testing.T) {
 	var input = map[string]interface{}{
 		"repair": "niujiaming",
 	}
-	result, err := flow.StartFlow(flowCode, "id_start", "niujiaming", input)
+	result, err := flow.StartFlow(flowCode, "niujiaming", input)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -76,7 +76,7 @@ func TestLeaveBzrApprovalPass(t *testing.T) {
 	}
 
 	// 开始流程
-	result, err := flow.StartFlow(flowCode, "node_start", "T001", input)
+	result, err := flow.StartFlow(flowCode, "T001", input)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -122,7 +122,7 @@ func TestLeaveBzrApprovalBack(t *testing.T) {
 	}
 
 	// 开始流程
-	result, err := flow.StartFlow(flowCode, "node_start", launcher, input)
+	result, err := flow.StartFlow(flowCode, launcher, input)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -200,7 +200,7 @@ func TestLeaveFdyApprovalPass(t *testing.T) {
 	}
 
 	// 开始流程
-	result, err := flow.StartFlow(flowCode, "node_start", launcher, input)
+	result, err := flow.StartFlow(flowCode, launcher, input)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -251,7 +251,7 @@ func TestApplySQLPass(t *testing.T) {
 	}
 
 	// 开始流程
-	result, err := flow.StartFlow(flowCode, "node_start", "A001", input)
+	result, err := flow.StartFlow(flowCode, "A001", input)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -304,7 +304,7 @@ func TestParallel(t *testing.T) {
 	}
 
 	// 开始流程
-	result, err := flow.StartFlow(flowCode, "node_start", "H001", input)
+	result, err := flow.StartFlow(flowCode, "H001", input)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -363,7 +363,7 @@ func TestLeaveRepeatedBack(t *testing.T) {
 	}
 
 	// 开始流程
-	result, err := flow.StartFlow(flowCode, "node_start", launcher, input)
+	result, err := flow.StartFlow(flowCode, launcher, input)
 	if err != nil {
 		t.Fatal(err.Error())
 	}

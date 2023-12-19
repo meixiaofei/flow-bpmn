@@ -40,6 +40,10 @@ func ExecParamBool(ctx context.Context, exp string, vars map[string]interface{})
 	return Bool(ExecParam(ctx, exp, vars))
 }
 
+func ExecParamMap(ctx context.Context, exp string, vars map[string]interface{}) (map[string]interface{}, error) {
+	return Map(ExecParam(ctx, exp, vars))
+}
+
 // ExecParamSliceStr 执行表达式，返回字符串切片
 func ExecParamSliceStr(ctx context.Context, exp string, vars map[string]interface{}) ([]string, error) {
 	return SliceStr(ExecParam(ctx, exp, vars))
@@ -69,16 +73,30 @@ func ExecBool(ctx ExpContext, exp string) (bool, error) {
 
 // Bool 返回布尔值
 func Bool(d *OutData, err ...error) (bool, error) {
-
+	if d == nil {
+		return false, nil
+	}
 	if len(err) > 1 && err[0] != nil {
 		return false, err[0]
 	}
 	return d.Bool()
 }
 
+func Map(d *OutData, err ...error) (map[string]interface{}, error) {
+	if d == nil {
+		return map[string]interface{}{}, nil
+	}
+	if len(err) > 1 && err[0] != nil {
+		return map[string]interface{}{}, err[0]
+	}
+	return d.Map()
+}
+
 // SliceStr 返回字符串切片
 func SliceStr(d *OutData, err ...error) ([]string, error) {
-
+	if d == nil {
+		return []string{}, nil
+	}
 	if len(err) > 1 && err[0] != nil {
 		return nil, err[0]
 	}

@@ -7,38 +7,30 @@ import (
 	"net/http"
 )
 
-func FcheckRpc(method, url string, body []byte, uid ...string) (bool, map[string]interface{}) {
-	if ok, m := Rpc(method, url, body, uid...); ok {
-		if success, ok := m["result"].(bool); ok && success {
-			return true, m
-		} else {
-			return false, m
-		}
-	} else {
-		return false, nil
-	}
-}
-
-func Rpc(method, url string, body []byte, uid ...string) (bool, map[string]interface{}) {
+func Rpc(method, url string, m map[string]interface{}, uid ...string) map[string]interface{} {
+	body, _ := json.Marshal(m)
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	if err != nil {
-		return false, nil
+		return map[string]interface{}{"error": err.Error()}
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if len(uid) > 0 {
-		req.Header.Set("_fcheck_passthrough_uid", uid[0])
+		req.Header.Set("Fcheck-Passthrough-Uid", uid[0])
 	}
+	//req.Header.Set("Cookie", "X-Branch-Forwarded-For=liufei;")
 	res, err := http.DefaultClient.Do(req)
-	if err != nil || res.StatusCode != http.StatusOK {
-		return false, nil
+	if err != nil {
+		return map[string]interface{}{"error": err.Error()}
+	} else if res.StatusCode != http.StatusOK {
+		return map[string]interface{}{"error": "http status code: " + res.Status}
 	} else {
 		defer res.Body.Close()
 		var m map[string]interface{}
 		resBody, _ := io.ReadAll(res.Body)
 		err = json.Unmarshal(resBody, &m)
 		if err != nil {
-			return false, nil
+			return map[string]interface{}{"error": err.Error()}
 		}
-		return true, m
+		return m
 	}
 }

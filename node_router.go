@@ -3,7 +3,7 @@ package flow
 import (
 	"context"
 	"encoding/json"
-
+	"github.com/bitly/go-simplejson"
 	"github.com/meixiaofei/flow-bpmn/schema"
 	"github.com/pkg/errors"
 )
@@ -104,6 +104,11 @@ func (n *NodeRouter) Init(ctx context.Context, engine *Engine, nodeInstanceID st
 	}
 	n.node = node
 
+	flow, _ := n.engine.flowBll.GetFlow(node.FlowID)
+	if flow != nil {
+		opts.autoStart = flow.IsAutoStart
+	}
+
 	return n, nil
 }
 
@@ -151,7 +156,17 @@ func (n *NodeRouter) Next(processor string) error {
 			}
 			return nil
 		}
+	}
 
+	switch nodeType {
+	case "scriptTask":
+		res, err := n.engine.execer.ExecReturnMap(n.ctx, []byte(n.node.Content), n.getExpData())
+		j, _ := simplejson.NewJson(n.inputData)
+		j.SetPath([]string{"script_task"}, map[string]interface{}{
+			"res": res,
+			"err": err,
+		})
+		n.inputData, _ = j.Encode()
 	}
 
 	// 完成当前节点
@@ -208,16 +223,6 @@ func (n *NodeRouter) Next(processor string) error {
 			}
 		}
 		return nil
-	}
-
-	switch nodeType {
-	case "scriptTask":
-		success, err := n.engine.execer.ExecReturnBool(n.ctx, []byte(n.node.Content), n.getExpData())
-		if err != nil {
-			return err
-		} else if !success {
-			return errors.New("脚本任务执行失败")
-		}
 	}
 
 	// 增加下一节点

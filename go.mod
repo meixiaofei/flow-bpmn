@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/LyricTian/retry v0.0.0-20171017083003-4f244cadd8eb
 	github.com/beevik/etree v1.1.0
+	github.com/bitly/go-simplejson v0.5.1
 	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
 	github.com/facebookgo/inject v0.0.0-20180706035515-f23751cae28b
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect

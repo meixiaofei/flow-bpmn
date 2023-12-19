@@ -35,13 +35,16 @@ func (p *xmlParser) Parse(ctx context.Context, content []byte) (*ParseResult, er
 	if id := process.SelectAttr("id"); id != nil {
 		result.FlowID = id.Value
 	}
+	if memo := process.SelectElement("documentation"); memo != nil {
+		result.FlowMemo = memo.Text()
+	}
 	if name := process.SelectAttr("name"); name != nil {
 		result.FlowName = name.Value
 	}
 	if v := process.SelectAttr("isExecutable"); v != nil {
 		b, _ := strconv.ParseBool(v.Value)
 		if b {
-			result.FlowStatus = 1
+			result.IsAutoStart = true
 		}
 	}
 	if version := process.SelectAttr("versionTag"); version != nil {

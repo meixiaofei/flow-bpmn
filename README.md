@@ -1,5 +1,5 @@
 # 工作流引擎
-本项目是根据github.com/antlinker/flow演变而来，原来的项目长时间不更新，并且代码qlang部分无法跑通.
+本项目是根据[github.com/antlinker/flow](github.com/antlinker/flow)演变而来，原来的项目长时间不更新，并且代码qlang部分无法跑通.
 
 目前这个项目支持如下类型：
 
@@ -57,7 +57,7 @@ func main() {
 	"day": 1,
   }
 
-	result, err := flow.StartFlow("process_leave_test", "开始节点编号", "流程发起人ID", input)
+	result, err := flow.StartFlow("process_leave_test", "流程发起人ID", input)
 	if err != nil {
 		// 处理错误
 	}

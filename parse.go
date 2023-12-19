@@ -14,8 +14,10 @@ type Parser interface {
 type ParseResult struct {
 	FlowID      string        // 流程ID
 	FlowName    string        // 流程名称
+	FlowMemo    string        // 流程笔记
 	FlowVersion int64         // 流程版本号
 	FlowStatus  int           // 流程状态(1:可用 2:不可用)
+	IsAutoStart bool          // 是否自动启动
 	Nodes       []*NodeResult // 节点数据
 }
 

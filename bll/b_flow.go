@@ -178,7 +178,7 @@ func (a *Flow) LaunchFlowInstance2(flowID, userID string, status int, inputData 
 }
 
 // LaunchFlowInstance 发起流程实例
-func (a *Flow) LaunchFlowInstance(flowCode, nodeCode, launcher string, inputData []byte) (*schema.NodeInstance, error) {
+func (a *Flow) LaunchFlowInstance(flowCode, launcher string, inputData []byte) (*schema.NodeInstance, error) {
 	flow, err := a.FlowModel.GetFlowByCode(flowCode)
 	if err != nil {
 		return nil, err
@@ -186,7 +186,7 @@ func (a *Flow) LaunchFlowInstance(flowCode, nodeCode, launcher string, inputData
 		return nil, nil
 	}
 
-	node, err := a.FlowModel.GetNodeByCode(flow.RecordID, nodeCode)
+	node, err := a.FlowModel.GetStartNode(flow.RecordID)
 	if err != nil {
 		return nil, err
 	} else if node == nil {
@@ -247,6 +247,10 @@ func (a *Flow) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error
 // GetDoneByID 根据ID获取已办
 func (a *Flow) GetDoneByID(nodeInstanceID string) (*schema.FlowDoneResult, error) {
 	return a.FlowModel.GetDoneByID(nodeInstanceID)
+}
+
+func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return a.FlowModel.QueryDoneByPage(typeCode, flowCode, userID, pageIndex, pageSize)
 }
 
 // QueryDone 查询用户的已办数据
@@ -324,6 +328,10 @@ func (a *Flow) QueryFlowByIDs(flowIDs []string) ([]*schema.FlowQueryResult, erro
 // GetFlowFormByNodeID 获取流程节点表单
 func (a *Flow) GetFlowFormByNodeID(nodeID string) (*schema.Form, error) {
 	return a.FlowModel.GetFlowFormByNodeID(nodeID)
+}
+
+func (a *Flow) GetFlowFormByFlowID(flowID string) (*schema.Form, error) {
+	return a.FlowModel.GetFlowFormByFlowID(flowID)
 }
 
 // QueryNodeByTypeCodeAndFlowIDs 根据节点类型和流程ID列表查询节点数据

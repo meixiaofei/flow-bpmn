@@ -11,6 +11,7 @@ import (
 type Execer interface {
 	// 执行表达式返回布尔类型的值
 	ExecReturnBool(ctx context.Context, exp, params []byte) (bool, error)
+	ExecReturnMap(ctx context.Context, exp, params []byte) (map[string]interface{}, error)
 
 	// 执行表达式返回字符串切片类型的值
 	ExecReturnStringSlice(ctx context.Context, exp, params []byte) ([]string, error)
@@ -36,6 +37,20 @@ func (*execer) ExecReturnBool(ctx context.Context, exp, params []byte) (bool, er
 		return expression.ExecParamBool(expCtx, string(exp), m)
 	}
 	return expression.ExecParamBool(ctx, string(exp), m)
+}
+
+func (*execer) ExecReturnMap(ctx context.Context, exp, params []byte) (map[string]interface{}, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(params, &m)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+
+	expCtx, ok := FromExpContext(ctx)
+	if ok {
+		return expression.ExecParamMap(expCtx, string(exp), m)
+	}
+	return expression.ExecParamMap(ctx, string(exp), m)
 }
 
 func (*execer) ExecReturnStringSlice(ctx context.Context, exp, params []byte) ([]string, error) {

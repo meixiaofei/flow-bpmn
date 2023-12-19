@@ -113,6 +113,21 @@ func (a *Flow) GetNode(recordID string) (*schema.Node, error) {
 	return &item, nil
 }
 
+func (a *Flow) GetStartNode(flowID string) (*schema.Node, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted=0 AND flow_id=? AND type_code=? ORDER BY order_num LIMIT 1", schema.NodeTableName)
+
+	var item schema.Node
+	err := a.DB.SelectOne(&item, query, flowID, "startEvent")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, errors.Wrapf(err, "根据节点编号获取流程节点发生错误")
+	}
+
+	return &item, nil
+}
+
 // GetNodeByCode 根据节点编号获取流程节点
 func (a *Flow) GetNodeByCode(flowID, nodeCode string) (*schema.Node, error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted=0 AND flow_id=? AND code=? ORDER BY order_num LIMIT 1", schema.NodeTableName)
@@ -342,7 +357,7 @@ func (a *Flow) QueryTodo(typeCode, flowCode, userID string, count int) ([]*schem
 			fw.name 'flow_name'
 		FROM %s ni
 		  JOIN %s fi ON ni.flow_instance_id = fi.record_id AND fi.deleted = ni.deleted
-		  LEFT JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
+		 JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
 		  LEFT JOIN %s f ON n.form_id = f.record_id AND f.deleted = n.deleted
 			LEFT JOIN %s fw ON n.flow_id = fw.record_id AND fw.deleted=n.deleted
 		WHERE ni.deleted = 0 AND ni.status = 1 AND fi.status = 1 AND ni.record_id IN (SELECT node_instance_id FROM %s WHERE deleted = 0 AND candidate_id = ?)
@@ -374,7 +389,7 @@ func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pa
 		countQuery  = fmt.Sprintf(`
 		SELECT %s FROM %s ni
 		  JOIN %s fi ON ni.flow_instance_id = fi.record_id AND fi.deleted = ni.deleted
-		  LEFT JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
+		  JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
 		  LEFT JOIN %s f ON n.form_id = f.record_id AND f.deleted = n.deleted
 			LEFT JOIN %s fw ON n.flow_id = fw.record_id AND fw.deleted=n.deleted
 		WHERE ni.deleted = 0 AND ni.status = 1 AND fi.status = 1 AND ni.record_id IN (SELECT node_instance_id FROM %s WHERE deleted = 0 AND candidate_id = ?)
@@ -475,6 +490,59 @@ func (a *Flow) GetDoneByID(nodeInstanceID string) (*schema.FlowDoneResult, error
 	}
 
 	return &item, nil
+}
+
+func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	table := fmt.Sprintf(`%s ni
+		JOIN %s fi ON ni.flow_instance_id = fi.record_id AND fi.deleted = ni.deleted
+		LEFT JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
+		LEFT JOIN %s f ON n.form_id = f.record_id AND f.deleted = n.deleted
+		LEFT JOIN %s fw ON n.flow_id = fw.record_id AND fw.deleted=n.deleted`, schema.NodeInstanceTableName, schema.FlowInstanceTableName, schema.NodeTableName, schema.FormTableName, schema.FlowTableName)
+
+	where := "WHERE ni.deleted = 0 AND ni.status = 2 AND n.type_code='userTask' AND ni.processor=?"
+	args := []interface{}{userID}
+
+	if typeCode != "" {
+		where = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND type_code=?)", where, schema.FlowTableName)
+		args = append(args, typeCode)
+	} else if flowCode != "" {
+		where = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND code=?)", where, schema.FlowTableName)
+		args = append(args, flowCode)
+	}
+
+	fieldsSelect := `
+	ni.record_id,
+	ni.flow_instance_id,
+	ni.out_data,
+	ni.process_time,
+	f.data 'form_data',
+	f.type_code 'form_type',
+	fi.status 'flow_status',
+	fi.launcher,
+	fi.launch_time,
+	n.record_id 'node_id',
+	n.name 'node_name',
+	fw.name 'flow_name'`
+
+	query := fmt.Sprintf("SELECT %s FROM %s %s ORDER BY ni.process_time DESC", fieldsSelect, table, where)
+
+	count, err := a.DB.SelectInt(fmt.Sprintf("SELECT count(*) FROM %s %s", table, where), args...)
+	if err != nil {
+		return 0, nil, errors.Wrapf(err, "查询分页数据发生错误")
+	} else if count == 0 {
+		return 0, nil, nil
+	}
+
+	if pageIndex > 0 && pageSize > 0 {
+		query = fmt.Sprintf("%s limit %d,%d", query, (pageIndex-1)*pageSize, pageSize)
+	}
+	var items []*schema.FlowDoneResult
+	_, err = a.DB.Select(&items, query, args...)
+	if err != nil {
+		return 0, nil, errors.Wrapf(err, "查询用户的已办数据发生错误")
+	}
+
+	return count, items, nil
 }
 
 // QueryDone 查询用户的已办数据
@@ -601,10 +669,11 @@ func (a *Flow) QueryHistory(flowInstanceID string) ([]*schema.FlowHistoryResult,
 		n.code 'node_code',
 		n.name 'node_name',
 		f.data 'form_data',
+		f.code 'form_code',
 		f.type_code 'form_type'
 		FROM %s ni JOIN %s n ON ni.node_id=n.record_id AND n.deleted=ni.deleted
 		LEFT JOIN %s f ON n.form_id = f.record_id AND f.deleted = n.deleted
-		WHERE ni.deleted=0 AND ni.flow_instance_id=? AND n.type_code='userTask'
+		WHERE ni.deleted=0 AND ni.flow_instance_id=? AND n.type_code in ('startEvent', 'userTask', 'scriptTask', 'terminateEvent', 'endEvent')
 		ORDER BY ni.status DESC,ni.process_time
 		`, schema.NodeInstanceTableName, schema.NodeTableName, schema.FormTableName)
 
@@ -749,6 +818,20 @@ func (a *Flow) GetForm(formID string) (*schema.Form, error) {
 
 	var item schema.Form
 	err := a.DB.SelectOne(&item, query, formID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, errors.Wrapf(err, "获取流程表单发生错误")
+	}
+	return &item, nil
+}
+
+func (a *Flow) GetFlowFormByFlowID(flowID string) (*schema.Form, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted=0 AND flow_id=? limit 1", schema.FormTableName)
+
+	var item schema.Form
+	err := a.DB.SelectOne(&item, query, flowID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

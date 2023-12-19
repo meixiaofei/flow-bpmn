@@ -75,6 +75,20 @@ func (d OutData) SliceStr() ([]string, error) {
 	return nil, errors.Errorf("返回值的类型错误:%s", r)
 }
 
+func (d OutData) Map() (map[string]interface{}, error) {
+	if d.IsUndefined() {
+		return nil, errors.Errorf("未定义变量：spec.Undefined")
+	}
+	if d.IsNil() {
+		return nil, nil
+	}
+	r, ok := d.Result.(map[string]interface{})
+	if ok {
+		return r, nil
+	}
+	return nil, errors.Errorf("返回值的类型错误:%s", r)
+}
+
 // Float 获取浮点数类型数据
 func (d OutData) Float() (float64, error) {
 	if d.IsUndefined() {
