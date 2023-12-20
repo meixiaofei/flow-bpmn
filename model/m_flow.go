@@ -527,7 +527,7 @@ func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIn
 	}
 
 	if status > 0 {
-		where += fmt.Sprintf(" AND fi.status = %d", status)
+		where += " AND fi.status = ?"
 		args = append(args, status)
 	}
 
