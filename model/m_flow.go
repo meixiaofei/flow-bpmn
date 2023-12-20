@@ -344,6 +344,7 @@ func (a *Flow) QueryTodo(typeCode, flowCode, userID string, count int) ([]*schem
 	var args []interface{}
 	query := fmt.Sprintf(`
 		SELECT
+		  ni.id,
 		  ni.record_id,
 		  ni.flow_instance_id,
 		  ni.input_data,
@@ -415,7 +416,7 @@ func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pa
 	if err != nil {
 		return 0, nil, errors.Wrapf(err, "查询用户的待办数据发生错误")
 	}
-	query := strings.ReplaceAll(countQuery, countSelect, `ni.record_id,
+	query := strings.ReplaceAll(countQuery, countSelect, `ni.id, ni.record_id,
 ni.flow_instance_id,
 ni.input_data,
 ni.node_id,
@@ -443,6 +444,7 @@ fw.name 'flow_name'`)
 func (a *Flow) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error) {
 	query := fmt.Sprintf(`
 		SELECT
+		  ni.id,
 		  ni.record_id,
 		  ni.flow_instance_id,
 		  ni.input_data,
