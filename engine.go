@@ -274,7 +274,11 @@ func (e *Engine) parseFormOperating(formOperating *schema.FormOperating, flow *s
 	}
 
 	// 解析URL类型
-	if fields := formResult.Fields; len(fields) == 2 {
+	fields := formResult.Fields
+	if len(fields) == 0 {
+		form.TypeCode = "REF"
+		node.FormID = form.RecordID
+	} else if len(fields) == 2 {
 		if fields[0].ID == "type_code" &&
 			fields[0].DefaultValue == "URL" &&
 			fields[1].ID == "data" {
@@ -665,8 +669,8 @@ func (e *Engine) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, err
 	return e.flowBll.GetTodoByID(nodeInstanceID)
 }
 
-func (e *Engine) QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
-	return e.flowBll.QueryDoneByPage(typeCode, flowCode, userID, pageIndex, pageSize)
+func (e *Engine) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return e.flowBll.QueryDoneByPage(typeCode, flowCode, userID, status, pageIndex, pageSize)
 }
 
 func (e *Engine) QueryDone(typeCode, flowCode, userID string, lastTime int64, count int) ([]*schema.FlowDoneResult, error) {

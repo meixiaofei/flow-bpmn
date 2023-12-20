@@ -2,6 +2,7 @@ package bll
 
 import (
 	"fmt"
+	"github.com/bitly/go-simplejson"
 	"sync"
 	"time"
 
@@ -192,10 +193,12 @@ func (a *Flow) LaunchFlowInstance(flowCode, launcher string, inputData []byte) (
 	} else if node == nil {
 		return nil, nil
 	}
+	j, _ := simplejson.NewJson(inputData)
 
 	flowInstance := &schema.FlowInstance{
 		RecordID:   util.UUID(),
 		FlowID:     flow.RecordID,
+		Title:      j.Get("flow_title").MustString(),
 		Launcher:   launcher,
 		LaunchTime: time.Now().Unix(),
 		Status:     1,
@@ -249,8 +252,8 @@ func (a *Flow) GetDoneByID(nodeInstanceID string) (*schema.FlowDoneResult, error
 	return a.FlowModel.GetDoneByID(nodeInstanceID)
 }
 
-func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
-	return a.FlowModel.QueryDoneByPage(typeCode, flowCode, userID, pageIndex, pageSize)
+func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return a.FlowModel.QueryDoneByPage(typeCode, flowCode, userID, status, pageIndex, pageSize)
 }
 
 // QueryDone 查询用户的已办数据

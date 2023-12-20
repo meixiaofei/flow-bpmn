@@ -131,6 +131,9 @@ func (p *xmlParser) ParseNode(element *etree.Element) (*nodeInfo, error) {
 	if formKey := element.SelectAttr("formKey"); formKey != nil {
 		nodeFormResult.ID = formKey.Value
 	}
+	if formKey := element.SelectAttr("formRef"); formKey != nil {
+		nodeFormResult.ID = formKey.Value
+	}
 
 	if extensionElements := element.SelectElement("extensionElements"); extensionElements != nil {
 		if formData := extensionElements.SelectElement("formData"); formData != nil {

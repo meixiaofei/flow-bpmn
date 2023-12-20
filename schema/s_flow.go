@@ -93,6 +93,7 @@ type NodeProperty struct {
 // FlowInstance 流程实例
 type FlowInstance struct {
 	ID         int64  `db:"id,primarykey,autoincrement" structs:"id" json:"id"`     // 唯一标识(自增ID)
+	Title      string `db:"title,size:255" structs:"title" json:"title"`            // 流程标题
 	RecordID   string `db:"record_id,size:36" structs:"record_id" json:"record_id"` // 记录内码(uuid)
 	FlowID     string `db:"flow_id,size:36" structs:"flow_id" json:"flow_id"`       // 流程内码
 	Status     int64  `db:"status" structs:"status" json:"status"`                  // 流程状态(0:未开始 1:进行中 2:暂停 3:已停止 9:已完成)
@@ -229,17 +230,20 @@ type FlowQueryResult struct {
 
 // FlowTodoResult 流程待办结果
 type FlowTodoResult struct {
-	RecordID       string  `db:"record_id" structs:"record_id" json:"record_id"`                      // 节点实例内码
-	FlowInstanceID string  `db:"flow_instance_id" structs:"flow_instance_id" json:"flow_instance_id"` // 流程实例内码
-	FlowName       string  `db:"flow_name" structs:"flow_name" json:"flow_name"`                      // 流程名称
-	NodeID         string  `db:"node_id" structs:"node_id" json:"node_id"`                            // 节点内码
-	NodeCode       string  `db:"node_code" structs:"node_code" json:"node_code"`                      // 节点编号
-	NodeName       string  `db:"node_name" structs:"node_name" json:"node_name"`                      // 节点名称
-	InputData      string  `db:"input_data" structs:"input_data" json:"input_data"`                   // 输入数据
-	Launcher       string  `db:"launcher" structs:"launcher" json:"launcher"`                         // 发起人
-	LaunchTime     int64   `db:"launch_time" structs:"launch_time" json:"launch_time"`                // 发起时间
-	FormType       *string `db:"form_type" structs:"form_type" json:"form_type"`                      // 表单类型
-	FormData       *string `db:"form_data" structs:"form_data" json:"form_data"`                      // 表单数据
+	RecordID            string  `db:"record_id" structs:"record_id" json:"record_id"`                                        // 节点实例内码
+	FlowInstanceID      string  `db:"flow_instance_id" structs:"flow_instance_id" json:"flow_instance_id"`                   // 流程实例内码
+	FlowInstanceHumanId int64   `db:"flow_instance_human_id" structs:"flow_instance_human_id" json:"flow_instance_human_id"` // 流程实例人工ID
+	FlowInstanceTitle   *string `db:"flow_instance_title" structs:"flow_instance_title" json:"flow_instance_title"`          // 流程实例标题
+	FlowName            string  `db:"flow_name" structs:"flow_name" json:"flow_name"`                                        // 流程名称
+	NodeID              string  `db:"node_id" structs:"node_id" json:"node_id"`                                              // 节点内码
+	NodeCode            string  `db:"node_code" structs:"node_code" json:"node_code"`                                        // 节点编号
+	NodeName            string  `db:"node_name" structs:"node_name" json:"node_name"`                                        // 节点名称
+	InputData           string  `db:"input_data" structs:"input_data" json:"input_data"`                                     // 输入数据
+	Launcher            string  `db:"launcher" structs:"launcher" json:"launcher"`                                           // 发起人
+	LaunchTime          int64   `db:"launch_time" structs:"launch_time" json:"launch_time"`                                  // 发起时间
+	FormType            *string `db:"form_type" structs:"form_type" json:"form_type"`                                        // 表单类型
+	FormData            *string `db:"form_data" structs:"form_data" json:"form_data"`                                        // 表单数据
+	FormCode            *string `db:"form_code" structs:"form_code" json:"form_code"`                                        // 表单id
 }
 
 // FlowHistoryResult 流程历史结果
@@ -272,6 +276,7 @@ type FlowDoneResult struct {
 	LaunchTime     int64   `db:"launch_time" structs:"launch_time" json:"launch_time"`                // 发起时间
 	FormType       *string `db:"form_type" structs:"form_type" json:"form_type"`                      // 表单类型
 	FormData       *string `db:"form_data" structs:"form_data" json:"form_data"`                      // 表单数据
+	FormCode       *string `db:"form_code" structs:"form_code" json:"form_code"`                      // 表单id
 }
 
 // FlowInstanceResult 流程实例结果

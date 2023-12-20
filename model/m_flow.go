@@ -415,7 +415,20 @@ func (a *Flow) QueryTodoPaginate(typeCode, flowCode, userID string, page int, pa
 	if err != nil {
 		return 0, nil, errors.Wrapf(err, "查询用户的待办数据发生错误")
 	}
-	query := strings.ReplaceAll(countQuery, countSelect, `ni.record_id,ni.flow_instance_id,ni.input_data,ni.node_id,f.data 'form_data',f.type_code 'form_type',fi.launcher,fi.launch_time,n.code 'node_code',n.name 'node_name',fw.name 'flow_name'`)
+	query := strings.ReplaceAll(countQuery, countSelect, `ni.record_id,
+ni.flow_instance_id,
+ni.input_data,
+ni.node_id,
+f.code 'form_code',
+f.data 'form_data',
+f.type_code 'form_type',
+fi.id 'flow_instance_human_id',
+fi.title 'flow_instance_title',
+fi.launcher,
+fi.launch_time,
+n.code 'node_code',
+n.name 'node_name',
+fw.name 'flow_name'`)
 	query = fmt.Sprintf("%s ORDER BY ni.id DESC LIMIT %d, %d", query, (page-1)*pageSize, pageSize)
 
 	var items []*schema.FlowTodoResult
@@ -434,6 +447,7 @@ func (a *Flow) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error
 		  ni.flow_instance_id,
 		  ni.input_data,
 		  ni.node_id,
+		  f.code 'form_code',
 		  f.data 'form_data',
 		  f.type_code 'form_type',
 		  fi.launcher,
@@ -492,7 +506,7 @@ func (a *Flow) GetDoneByID(nodeInstanceID string) (*schema.FlowDoneResult, error
 	return &item, nil
 }
 
-func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
 	table := fmt.Sprintf(`%s ni
 		JOIN %s fi ON ni.flow_instance_id = fi.record_id AND fi.deleted = ni.deleted
 		LEFT JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
@@ -510,11 +524,17 @@ func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, pageIndex, pag
 		args = append(args, flowCode)
 	}
 
+	if status > 0 {
+		where += fmt.Sprintf(" AND fi.status = %d", status)
+		args = append(args, status)
+	}
+
 	fieldsSelect := `
 	ni.record_id,
 	ni.flow_instance_id,
 	ni.out_data,
 	ni.process_time,
+	f.code 'form_code',
 	f.data 'form_data',
 	f.type_code 'form_type',
 	fi.status 'flow_status',
@@ -660,7 +680,7 @@ func (a *Flow) QueryHistory(flowInstanceID string) ([]*schema.FlowHistoryResult,
 	query := fmt.Sprintf(`
 		SELECT
 		ni.record_id,
-		ni.processor,
+		IF(ni.processor = '', nc.candidate_id, ni.processor) as processor,
 		ni.process_time,
 		ni.input_data,
 		ni.out_data,
@@ -673,9 +693,10 @@ func (a *Flow) QueryHistory(flowInstanceID string) ([]*schema.FlowHistoryResult,
 		f.type_code 'form_type'
 		FROM %s ni JOIN %s n ON ni.node_id=n.record_id AND n.deleted=ni.deleted
 		LEFT JOIN %s f ON n.form_id = f.record_id AND f.deleted = n.deleted
+		LEFT JOIN %s nc ON ni.record_id = nc.node_instance_id AND nc.deleted = n.deleted
 		WHERE ni.deleted=0 AND ni.flow_instance_id=? AND n.type_code in ('startEvent', 'userTask', 'scriptTask', 'terminateEvent', 'endEvent')
 		ORDER BY ni.status DESC,ni.process_time
-		`, schema.NodeInstanceTableName, schema.NodeTableName, schema.FormTableName)
+		`, schema.NodeInstanceTableName, schema.NodeTableName, schema.FormTableName, schema.NodeCandidateTableName)
 
 	var items []*schema.FlowHistoryResult
 	_, err := a.DB.Select(&items, query, flowInstanceID)
