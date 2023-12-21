@@ -151,10 +151,12 @@ func (a *Flow) LaunchFlowInstance2(flowID, userID string, status int, inputData 
 	} else if node == nil {
 		return nil, nil, fmt.Errorf("未知的流程节点")
 	}
+	j, _ := simplejson.NewJson(inputData)
 
 	flowInstance := &schema.FlowInstance{
 		RecordID:   util.UUID(),
 		FlowID:     flowID,
+		Title:      j.Get("flow_title").MustString(),
 		Launcher:   userID,
 		LaunchTime: time.Now().Unix(),
 		Status:     int64(status),
