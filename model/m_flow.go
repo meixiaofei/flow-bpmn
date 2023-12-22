@@ -446,6 +446,7 @@ func (a *Flow) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error
 		  ni.id,
 		  ni.record_id,
 		  ni.flow_instance_id,
+		  fi.title 'flow_instance_title',
 		  ni.input_data,
 		  ni.node_id,
 		  f.code 'form_code',
