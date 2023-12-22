@@ -851,7 +851,17 @@ func (a *Flow) GetForm(formID string) (*schema.Form, error) {
 }
 
 func (a *Flow) GetFlowFormByFlowID(flowID string) (*schema.Form, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE deleted=0 AND flow_id=? limit 1", schema.FormTableName)
+	query := fmt.Sprintf(`
+SELECT f.* FROM %s as n
+           inner join %s as nr on nr.source_node_id = n.record_id and nr.deleted = n.deleted
+           inner join %s as nf  on nf.record_id = nr.target_node_id
+           inner join %s as f on f.record_id = nf.form_id 
+                               WHERE n.flow_id=? AND n.type_code = 'startEvent' and n.deleted=0 limit 1
+`,
+		schema.NodeTableName,
+		schema.NodeRouterTableName,
+		schema.NodeTableName,
+		schema.FormTableName)
 
 	var item schema.Form
 	err := a.DB.SelectOne(&item, query, flowID)
