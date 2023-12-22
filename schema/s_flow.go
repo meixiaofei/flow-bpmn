@@ -265,6 +265,7 @@ type FlowHistoryResult struct {
 // FlowDoneResult 流程已办结果
 type FlowDoneResult struct {
 	RecordID          string  `db:"record_id" structs:"record_id" json:"record_id"`                               // 节点实例内码
+	Id                int64   `db:"id" structs:"id" json:"id"`                                                    // 唯一标识(自增ID)
 	FlowInstanceID    string  `db:"flow_instance_id" structs:"flow_instance_id" json:"flow_instance_id"`          // 流程实例内码
 	FlowInstanceTitle *string `db:"flow_instance_title" structs:"flow_instance_title" json:"flow_instance_title"` // 流程实例标题
 	FlowName          string  `db:"flow_name" structs:"flow_name" json:"flow_name"`                               // 流程名称
