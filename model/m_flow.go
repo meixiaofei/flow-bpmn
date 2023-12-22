@@ -540,6 +540,7 @@ func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIn
 	f.data 'form_data',
 	f.type_code 'form_type',
 	fi.status 'flow_status',
+	fi.title 'flow_instance_title',
 	fi.launcher,
 	fi.launch_time,
 	n.record_id 'node_id',
