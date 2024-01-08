@@ -76,7 +76,7 @@ func Bool(d *OutData, err ...error) (bool, error) {
 	if d == nil {
 		return false, nil
 	}
-	if len(err) > 1 && err[0] != nil {
+	if len(err) > 0 && err[0] != nil {
 		return false, err[0]
 	}
 	return d.Bool()
@@ -86,7 +86,7 @@ func Map(d *OutData, err ...error) (map[string]interface{}, error) {
 	if d == nil {
 		return map[string]interface{}{}, nil
 	}
-	if len(err) > 1 && err[0] != nil {
+	if len(err) > 0 && err[0] != nil {
 		return map[string]interface{}{}, err[0]
 	}
 	return d.Map()
