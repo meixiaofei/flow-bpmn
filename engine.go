@@ -669,8 +669,8 @@ func (e *Engine) GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, err
 	return e.flowBll.GetTodoByID(nodeInstanceID)
 }
 
-func (e *Engine) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
-	return e.flowBll.QueryDoneByPage(typeCode, flowCode, userID, status, pageIndex, pageSize)
+func (e *Engine) QueryDoneByPage(typeCode, flowCode, userID string, status, dataType, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return e.flowBll.QueryDoneByPage(typeCode, flowCode, userID, status, dataType, pageIndex, pageSize)
 }
 
 func (e *Engine) QueryDone(typeCode, flowCode, userID string, lastTime int64, count int) ([]*schema.FlowDoneResult, error) {

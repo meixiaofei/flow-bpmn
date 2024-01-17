@@ -508,7 +508,7 @@ func (a *Flow) GetDoneByID(nodeInstanceID string) (*schema.FlowDoneResult, error
 	return &item, nil
 }
 
-func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, dataType, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
 	table := fmt.Sprintf(`%s ni
 		JOIN %s fi ON ni.flow_instance_id = fi.record_id AND fi.deleted = ni.deleted
 		LEFT JOIN %s n ON ni.node_id = n.record_id AND n.deleted = ni.deleted
@@ -524,6 +524,11 @@ func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIn
 	} else if flowCode != "" {
 		where = fmt.Sprintf("%s AND fi.flow_id IN (SELECT record_id FROM %s WHERE deleted=0 AND flag=1 AND code=?)", where, schema.FlowTableName)
 		args = append(args, flowCode)
+	}
+	if dataType == 1 {
+		where += fmt.Sprintf(` and EXISTS(select 1 from %s nr JOIN %s tn on tn.record_id = nr.source_node_id and tn.type_code = 'startEvent' where nr.target_node_id = ni.node_id)`, schema.NodeRouterTableName, schema.NodeTableName)
+	} else if dataType == 2 {
+		where += fmt.Sprintf(` and EXISTS(select 1 from %s nr JOIN %s tn on tn.record_id = nr.source_node_id and tn.type_code != 'startEvent' where nr.target_node_id = ni.node_id)`, schema.NodeRouterTableName, schema.NodeTableName)
 	}
 
 	if status > 0 {

@@ -149,8 +149,8 @@ func GetTodoByID(nodeInstanceID string) (*schema.FlowTodoResult, error) {
 	return engine.GetTodoByID(nodeInstanceID)
 }
 
-func QueryDoneByPage(typeCode, flowCode, userID string, status, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
-	return engine.QueryDoneByPage(typeCode, flowCode, userID, status, pageIndex, pageSize)
+func QueryDoneByPage(typeCode, flowCode, userID string, status, dataType, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return engine.QueryDoneByPage(typeCode, flowCode, userID, status, dataType, pageIndex, pageSize)
 }
 
 func QueryDone(typeCode, flowCode, userID string, lastTime int64, count int) ([]*schema.FlowDoneResult, error) {

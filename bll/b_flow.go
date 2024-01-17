@@ -254,8 +254,8 @@ func (a *Flow) GetDoneByID(nodeInstanceID string) (*schema.FlowDoneResult, error
 	return a.FlowModel.GetDoneByID(nodeInstanceID)
 }
 
-func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
-	return a.FlowModel.QueryDoneByPage(typeCode, flowCode, userID, status, pageIndex, pageSize)
+func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, dataType, pageIndex, pageSize int) (int64, []*schema.FlowDoneResult, error) {
+	return a.FlowModel.QueryDoneByPage(typeCode, flowCode, userID, status, dataType, pageIndex, pageSize)
 }
 
 // QueryDone 查询用户的已办数据
