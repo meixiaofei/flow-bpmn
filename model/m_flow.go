@@ -528,7 +528,7 @@ func (a *Flow) QueryDoneByPage(typeCode, flowCode, userID string, status, dataTy
 	if dataType == 1 {
 		where += fmt.Sprintf(` and EXISTS(select 1 from %s nr JOIN %s tn on tn.record_id = nr.source_node_id and tn.type_code = 'startEvent' where nr.target_node_id = ni.node_id)`, schema.NodeRouterTableName, schema.NodeTableName)
 	} else if dataType == 2 {
-		where += fmt.Sprintf(` and EXISTS(select 1 from %s nr JOIN %s tn on tn.record_id = nr.source_node_id and tn.type_code != 'startEvent' where nr.target_node_id = ni.node_id)`, schema.NodeRouterTableName, schema.NodeTableName)
+		where += fmt.Sprintf(` and EXISTS(select 1 from %s nr JOIN %s tn on tn.record_id = nr.target_node_id and tn.type_code in ('exclusiveGateway', 'parallelGateway') where nr.source_node_id = ni.node_id)`, schema.NodeRouterTableName, schema.NodeTableName)
 	}
 
 	if status > 0 {
